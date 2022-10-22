@@ -102,11 +102,14 @@ GLOTPRESS_TO_ASC_METADATA_LOCALE_CODES = {
 before_all do
   # This is necessary for `match` to work correctly in CI. When running
   # locally, it has no effect so it's safe to run it before all lanes.
-  setup_ci
+  
+  setup_circle_ci
+  # setup_ci
 
   # Decrypt the secrets. This is redundant on dev machines most of the time,
   # but it has such a negligible overhead that it's worth running it here to
   # keep the individual lanes cleaner.
+
   configure_apply
 end
 
@@ -121,6 +124,7 @@ platform :ios do
 
   desc 'Run the unit tests'
   lane :test do
+    scan
     load_ci_spm_cache
 
     run_tests(
@@ -309,7 +313,7 @@ platform :ios do
   # @option [String] branch_to_build The name of the branch we want the CI to build, e.g. `release/19.3`
   #
   lane :trigger_beta_build do |options|
-    trigger_buildkite_release_build(branch: options[:branch_to_build], beta: true)
+    # trigger_buildkite_release_build(branch: options[:branch_to_build], beta: true)
   end
 
   # Triggers a stable release build on CI
@@ -317,7 +321,7 @@ platform :ios do
   # @option [String] branch_to_build The name of the branch we want the CI to build, e.g. `release/19.3`
   #
   lane :trigger_release_build do |options|
-    trigger_buildkite_release_build(branch: options[:branch_to_build], beta: false)
+    # trigger_buildkite_release_build(branch: options[:branch_to_build], beta: false)
   end
 
   # Finalizes a release at the end of a sprint to submit to the App Store
@@ -733,15 +737,15 @@ inal copy, and try again.")
   # -----------------------------------------------------------------------------------
   # Kicks off a Buildkite build
   # -----------------------------------------------------------------------------------
-  def trigger_buildkite_release_build(branch:, beta:)
-    buildkite_trigger_build(
-      buildkite_organization: 'automattic',
-      buildkite_pipeline: 'pocket-casts-ios',
-      branch: branch,
-      environment: { BETA_RELEASE: beta },
-      pipeline_file: 'release-builds.yml'
-    )
-  end
+  # def trigger_buildkite_release_build(branch:, beta:)
+  #   buildkite_trigger_build(
+  #     buildkite_organization: 'automattic',
+  #     buildkite_pipeline: 'pocket-casts-ios',
+  #     branch: branch,
+  #     environment: { BETA_RELEASE: beta },
+  #     pipeline_file: 'release-builds.yml'
+  #   )
+  # end
 
   # Generates localized screenshots for the iPhone, and iPad.
   # Tests run in the simulator so be sure to make any necessary Podfile changes such as
@@ -933,12 +937,12 @@ inal copy, and try again.")
     sh(command: %(save_cache #{SPM_CACHE_FOLDER} "#{ci_spm_cache_key}")) if is_ci
   end
 
-  def ci_spm_cache_key
-    UI.user_error! 'This function should be called from the Buildkite CI only!' unless is_ci
+  # def ci_spm_cache_key
+  #   UI.user_error! 'This function should be called from the Buildkite CI only!' unless is_ci
 
-    hash = sh(command: 'hash_file "../podcasts.xcworkspace/xcshareddata/swiftpm/Package.resolved"').rstrip
-    "$BUILDKITE_PIPELINE_SLUG-spm-cache-#{hash}"
-  end
+  #   hash = sh(command: 'hash_file "../podcasts.xcworkspace/xcshareddata/swiftpm/Package.resolved"').rstrip
+  #   "$BUILDKITE_PIPELINE_SLUG-spm-cache-#{hash}"
+  # end
 
   def create_merge_release_branch
     Fastlane::Helper::GitHelper.create_branch(merge_branch_name, from: release_branch_name)
