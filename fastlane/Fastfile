@@ -103,8 +103,8 @@ before_all do
   # This is necessary for `match` to work correctly in CI. When running
   # locally, it has no effect so it's safe to run it before all lanes.
   
+  setup_ci
   setup_circle_ci
-  # setup_ci
 
   # Decrypt the secrets. This is redundant on dev machines most of the time,
   # but it has such a negligible overhead that it's worth running it here to
@@ -157,6 +157,12 @@ platform :ios do
 
     save_ci_spm_cache
   end
+
+  desc "Ad-hoc build"
+  lane :adhoc do 
+      match(type: "adhoc")
+      gym(export_method: "ad-hoc")
+  end 
 
   desc 'This lane downloads and configures the code signing certificates and profiles.'
   lane :configure_code_signing do
