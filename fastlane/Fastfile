@@ -110,7 +110,7 @@ before_all do
   # but it has such a negligible overhead that it's worth running it here to
   # keep the individual lanes cleaner.
 
-  configure_apply
+  # configure_apply
 end
 
 platform :ios do
